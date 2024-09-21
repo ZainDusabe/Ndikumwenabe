@@ -12,14 +12,14 @@
       align-items: center;
     }
     .header {
-      background-color: #28a745;
-      width: 100%;
+      background-color: #002147;
+      width: 65%;
       padding: 10px 0;
-      color: white;
+      color: #fbbc04;
       text-align: center;
     }
     .header a {
-      color: white;
+      color: #fbbc04;
       margin: 0 15px;
       text-decoration: none;
     }
@@ -51,7 +51,8 @@
     }
     input[type="text"],
     input[type="date"],
-    input[type="number"] {
+    input[type="number"],
+    input[type="search"] {
       width: calc(100% - 22px);
       padding: 10px;
       margin-bottom: 15px;
@@ -61,17 +62,20 @@
       text-align: center;
     }
     input[type="submit"] {
-      background-color: #28a745;
-      color: white;
+      background-color: #002147;
+      color: #fbbc04;
       padding: 10px 15px;
       border: none;
       border-radius: 4px;
       cursor: pointer;
       font-size: 16px;
       width: 100%;
+      font-weight: bold;
     }
     input[type="submit"]:hover {
-      background-color: #218838;
+      background-color: #fbbc04;
+      color: #002147;
+      font-weight: bold;
     }
     table {
       width: 100%;
@@ -183,6 +187,30 @@
       }, 3000);
     }
 
+    function searchTable() {
+  // Declare variables
+  var input, filter, table, tr, td, i, j, txtValue;
+  input = document.getElementById("searchInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("dataTable");
+  tr = table.getElementsByTagName("tr");
+
+  // Loop through all table rows, and hide those that don't match the search query
+  for (i = 1; i < tr.length; i++) { // Start at 1 to skip header row
+    tr[i].style.display = "none"; // Hide all rows initially
+    td = tr[i].getElementsByTagName("td");
+    for (j = 0; j < td.length; j++) { // Search through all columns
+      if (td[j]) {
+        txtValue = td[j].textContent || td[j].innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = ""; // Show row if a match is found
+          break; // Exit the inner loop once a match is found
+        }
+      }
+    }
+  }
+}
+
     window.onload = function() {
       fetchData(); // Fetch data when the page loads
     };
@@ -212,26 +240,27 @@
 
         <input type="submit" value="Submit">
       </form>
-      <div id="toast" class="toast">Toast message</div>
+      <div id="toast" class="toast">Data submitted successfully.</div>
     </div>
 
     <div class="table-container">
       <h2>SALES DATA</h2>
+      <input type="search" id="searchInput" oninput="searchTable()" placeholder="Search for records...">
       <table id="dataTable">
         <thead>
           <tr>
-            <th>DATE</th>
-            <th>INVOICE</th>
-            <th>CLIENT</th>
-            <th>ITEM</th>
-            <th>QUANTITY</th>
-            <th>PRICE</th>
-            <th>TOTAL AMOUNT</th>
-            <th>NEW COLUMN</th> <!-- New column header -->
+            <th>Date</th>
+            <th>Invoice No</th>
+            <th>Client</th>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total Amount</th>
+            <th>Total Amount</th>
           </tr>
         </thead>
         <tbody>
-          <!-- Data will be inserted here -->
+          <!-- Data will be dynamically populated here -->
         </tbody>
       </table>
     </div>
