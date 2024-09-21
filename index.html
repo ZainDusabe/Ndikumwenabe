@@ -1,29 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>NDIKUMWE NABE-sales</title>
+  <title>NDIKUMWE NABE Sales</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
+      background-color: #f4f4f942;
       margin: 0;
-      padding: 0;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      height: 100vh;
     }
-    h1 {
+    .header {
+      background-color: #28a745;
+      width: 100%;
+      padding: 10px 0;
+      color: white;
       text-align: center;
-      color: #333;
     }
-    form {
-      background-color: #fff;
+    .header a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+    }
+    .container {
+      display: flex;
+      width: 90%;
+      max-width: 1200px;
+      margin: 20px 0;
+    }
+    .form-container {
+      flex: 1;
+      background-color: white;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       padding: 20px;
-      max-width: 400px;
-      width: 100%;
+      margin-right: 20px;
+      height: fit-content;
+    }
+    .table-container {
+      flex: 2;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    h1 {
+      color: #002147;
+      text-align: center;
     }
     input[type="text"],
     input[type="date"],
@@ -34,7 +58,7 @@
       border: 1px solid #ccc;
       border-radius: 4px;
       box-sizing: border-box;
-      text-align: center; /* Center the text and placeholder */
+      text-align: center;
     }
     input[type="submit"] {
       background-color: #28a745;
@@ -49,19 +73,75 @@
     input[type="submit"]:hover {
       background-color: #218838;
     }
-    .form-container {
-      padding: 20px;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
     }
-    .total-amount {
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #002147;
+      color: #fbbc04;
+    }
+    td {
+      border: 1px dashed #002147;
+      color: #002147;
       font-weight: bold;
-      margin-top: 15px;
-      font-size: 18px;
-      color: #000;
-      text-align: center; /* Center the total amount display */
+    }
+    .toast {
+      visibility: hidden;
+      min-width: 250px;
+      margin-left: -125px;
+      background-color: #002147;
+      color: #fbbc04;
+      text-align: center;
+      border-radius: 2px;
+      padding: 16px;
+      position: fixed;
+      z-index: 1;
+      left: 50%;
+      bottom: 30px;
+      font-size: 17px;
+    }
+    .toast.show {
+      visibility: visible;
+      animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
+    @keyframes fadein {
+      from {bottom: 0; opacity: 0;} 
+      to {bottom: 30px; opacity: 1;}
+    }
+    @keyframes fadeout {
+      from {bottom: 30px; opacity: 1;} 
+      to {bottom: 0; opacity: 0;}
     }
   </style>
   <script>
-    // Function to update the total amount on input change
+    function fetchData() {
+      fetch("https://script.google.com/macros/s/AKfycbw48ccDJBaeOvzPSb_IyDDDPyWBO1W5D64YKhhnRYA2pSnnBWQigvsXOu7D6Vt5zKem/exec?fetchData=true")
+        .then(response => response.json())
+        .then(data => {
+          var tableBody = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
+          data.forEach(function(row, index) {
+            if (index === 0) return; // Skip header row if it exists
+            var newRow = tableBody.insertRow();
+            row.forEach(function(cell) {
+              var newCell = newRow.insertCell();
+              newCell.textContent = cell;
+            });
+
+            // Assuming the new data for the new column is at index 7 (adjust as needed)
+            var totalAmount = row[4] * row[5]; // Calculate total amount (Quantity * Price)
+            var newCell = newRow.insertCell(); // Create a new cell for the new column
+            newCell.textContent = totalAmount.toFixed(2); // Display formatted total amount
+          });
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+
     function updateTotalAmount() {
       var quantity = document.getElementById("Quantity").value;
       var price = document.getElementById("Price").value;
@@ -74,47 +154,87 @@
       }
     }
 
-    // Function to calculate total and submit the form
     function calculateTotalAndSubmit(event) {
       event.preventDefault(); // Prevent form from submitting immediately
 
-      var quantity = document.getElementById("Quantity").value;
-      var price = document.getElementById("Price").value;
+      var form = document.getElementById("myForm");
+      var formData = new FormData(form);
 
-      // Calculate total amount
-      var totalAmount = quantity * price;
-
-      // Create a hidden input to store total amount and append it to the form
-      var totalAmountInput = document.createElement("input");
-      totalAmountInput.setAttribute("type", "hidden");
-      totalAmountInput.setAttribute("name", "TotalAmount");
-      totalAmountInput.setAttribute("value", totalAmount);
-
-      document.getElementById("myForm").appendChild(totalAmountInput);
-
-      // Now submit the form
-      document.getElementById("myForm").submit();
+      fetch(form.action, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.text())
+      .then(data => {
+        // Display toast message
+        showToast("Data submitted successfully.");
+        // Optionally, clear the form fields
+        form.reset();
+      })
+      .catch(error => console.error('Error:', error));
     }
+
+    function showToast(message) {
+      var toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.className = "toast show";
+      setTimeout(function() {
+        toast.className = toast.className.replace("show", "");
+      }, 3000);
+    }
+
+    window.onload = function() {
+      fetchData(); // Fetch data when the page loads
+    };
   </script>
 </head>
 <body>
-  <div class="form-container">
-    <h1>MAKE SALES BELOW</h1>
-    <form id="myForm" action="https://script.google.com/macros/s/AKfycbzbGJ6y1iFxnCi9NlbZAX8JAsuctExmF6kXwrgTYZ-jkMsxZWg88T-1i_thENIfaabi/exec" method="POST" onsubmit="calculateTotalAndSubmit(event)">
-      <input type="date" id="Date" name="Date" required placeholder="Select a date">
-      <input type="text" id="Client" name="Client" required placeholder="Enter client name">
-      <input type="text" id="Item" name="Item" required placeholder="Enter item name">
-      <input type="number" id="Quantity" name="Quantity" step="0.01" required placeholder="Enter quantity" oninput="updateTotalAmount()">
-      <input type="number" id="Price" name="Price" step="0.01" required placeholder="Enter price" oninput="updateTotalAmount()">
-      
-      <div class="total-amount" id="TotalAmountDisplay">
-        Total Amount: $0.00
-      </div>
+  <div class="header">
+    <a href="#">Home</a>
+    <a href="#">Sales Data</a>
+  </div>
 
-      <input type="submit" value="Submit">
+  <h1>Sales Management</h1>
+  <div class="container">
+    <div class="form-container">
+      <h2>RECORD SALES</h2>
+      <form id="myForm" action="https://script.google.com/macros/s/AKfycbw48ccDJBaeOvzPSb_IyDDDPyWBO1W5D64YKhhnRYA2pSnnBWQigvsXOu7D6Vt5zKem/exec" method="POST" onsubmit="calculateTotalAndSubmit(event)">
+        <input type="date" id="Date" name="Date" required placeholder="Select a date">
+        <input type="text" id="invno" name="invno" required placeholder="Enter Invoice number">
+        <input type="text" id="Client" name="Client" required placeholder="Enter client name">
+        <input type="text" id="Item" name="Item" required placeholder="Enter item name">
+        <input type="number" id="Quantity" name="Quantity" step="0.01" required placeholder="Enter quantity" oninput="updateTotalAmount()">
+        <input type="number" id="Price" name="Price" step="0.01" required placeholder="Enter price" oninput="updateTotalAmount()">
+        
+        <div class="total-amount" id="TotalAmountDisplay">
+          Total Amount: $0.00
+        </div>
 
-    </form>
-    <a href="dataDisplay.html">Go Back to Form</a>
+        <input type="submit" value="Submit">
+      </form>
+      <div id="toast" class="toast">Toast message</div>
+    </div>
+
+    <div class="table-container">
+      <h2>SALES DATA</h2>
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>DATE</th>
+            <th>INVOICE</th>
+            <th>CLIENT</th>
+            <th>ITEM</th>
+            <th>QUANTITY</th>
+            <th>PRICE</th>
+            <th>TOTAL AMOUNT</th>
+            <th>NEW COLUMN</th> <!-- New column header -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data will be inserted here -->
+        </tbody>
+      </table>
+    </div>
   </div>
 </body>
 </html>
