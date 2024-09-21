@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NDIKUMWE NABE-sales</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    form {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+    }
+    label {
+      font-weight: bold;
+      margin-bottom: 8px;
+      display: block;
+      color: #555;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="number"] {
+      width: calc(100% - 22px);
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    input[type="submit"] {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+    input[type="submit"]:hover {
+      background-color: #218838;
+    }
+    .form-container {
+      padding: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .total-amount {
+      font-weight: bold;
+      margin-top: 15px;
+      font-size: 18px;
+      color: #000;
+    }
+  </style>
+  <script>
+    // Function to update the total amount on input change
+    function updateTotalAmount() {
+      var quantity = document.getElementById("Quantity").value;
+      var price = document.getElementById("Price").value;
+      
+      if (quantity && price) {
+        var totalAmount = quantity * price;
+        document.getElementById("TotalAmountDisplay").textContent = "Total Amount: $" + totalAmount.toFixed(2);
+      } else {
+        document.getElementById("TotalAmountDisplay").textContent = "Total Amount: $0.00";
+      }
+    }
+
+    // Function to calculate total and submit the form
+    function calculateTotalAndSubmit(event) {
+      event.preventDefault(); // Prevent form from submitting immediately
+
+      var quantity = document.getElementById("Quantity").value;
+      var price = document.getElementById("Price").value;
+
+      // Calculate total amount
+      var totalAmount = quantity * price;
+
+      // Create a hidden input to store total amount and append it to the form
+      var totalAmountInput = document.createElement("input");
+      totalAmountInput.setAttribute("type", "hidden");
+      totalAmountInput.setAttribute("name", "TotalAmount");
+      totalAmountInput.setAttribute("value", totalAmount);
+
+      document.getElementById("myForm").appendChild(totalAmountInput);
+
+      // Now submit the form
+      document.getElementById("myForm").submit();
+    }
+  </script>
+</head>
+<body>
+  <div class="form-container">
+    <h1>MAKE SALES BELOW</h1>
+    <form id="myForm" action="https://script.google.com/macros/s/AKfycbzjAQ1Pvb5HA4bh9m84e4PMZMvbIiv3pv1I-YukH996h-qzJ6XjBlU0MEmZFqbSUyYQ/exec" method="POST" onsubmit="calculateTotalAndSubmit(event)">
+      <div class="form-group">
+        <label for="Date">Date:</label>
+        <input type="date" id="Date" name="Date" required>
+      </div>
+
+      <div class="form-group">
+        <label for="Client">Client:</label>
+        <input type="text" id="Client" name="Client" required>
+      </div>
+
+      <div class="form-group">
+        <label for="Item">Item:</label>
+        <input type="text" id="Item" name="Item" required>
+      </div>
+
+      <div class="form-group">
+        <label for="Quantity">Quantity:</label>
+        <input type="number" id="Quantity" name="Quantity" step="0.01" required oninput="updateTotalAmount()">
+      </div>
+
+      <div class="form-group">
+        <label for="Price">Price:</label>
+        <input type="number" id="Price" name="Price" step="0.01" required oninput="updateTotalAmount()">
+      </div>
+
+      <div class="total-amount" id="TotalAmountDisplay">
+        Total Amount: $0.00
+      </div>
+
+      <input type="submit" value="Submit">
+    </form>
+  </div>
+</body>
+</html>
